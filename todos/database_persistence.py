@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-
+import os
 import logging
 import psycopg2
 from psycopg2.extras import DictCursor
@@ -14,7 +14,10 @@ class DatabasePersistence:
 
     @contextmanager
     def _database_connect(self):
-        conn = psycopg2.connect(dbname="todos")
+        if os.environ.get("FLASK_ENV") == "production":
+            conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        else:
+            conn = psycopg2.connect(dbname="todos")
         try:
             with conn:
                 yield conn
